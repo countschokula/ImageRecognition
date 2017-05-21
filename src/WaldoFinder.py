@@ -44,4 +44,4 @@ def most_likely_waldo_coordinates(probability_image, patch_size):
 
 
 image = plt.imread(os.path.join(os.path.abspath('..'), 'data', 'test', '01.jpg')).astype(np.float32)
-print(where_is_waldo_in_this_image(image, 10, 1000))
+print(where_is_waldo_in_this_image(image, 10, 50))
