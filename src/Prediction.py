@@ -1,16 +1,18 @@
 import numpy as np
-from src.SVMHandler import ncc
+import src.SVMHandler as Svm
 from src.TrainingsDataHandler import label_to_cent
+import src.Preprocession
 
-def calculate_prediction_img(img, patch_size, svm_estimator, train_data):
+
+def calculate_prediction_img(img, patch_size, svm_estimator, train_data, preprossecion, svm_handler):
     step_size = np.floor(patch_size/2).astype('int')
     prediction_img = np.zeros(img.shape)
     for i in range(0, img.shape[0]-patch_size, step_size):
         for j in range(0, img.shape[1]-patch_size, step_size):
             patch = img[i:i+patch_size, j:j+patch_size, :3]
             print(patch.size)
-
-            label = svm_estimator.predict(ncc(patch.flatten(), train_data[:, 1:]).reshape((1, -1)))
+            feature = preprossecion.preprocess(patch)
+            label = svm_estimator.predict(svm_handler.kernel_method(feature, train_data[:, 1:]).reshape((1, -1)))
             print(label)
             prediction = label_to_cent(label)
             # prediction_img[prediction_img[i:i+patch_size, j:j+patch_size] > 0]\

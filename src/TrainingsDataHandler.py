@@ -3,20 +3,21 @@ import glob
 import os
 import numpy as np
 import random as rnd
+#import src.Preprocession as prep
 
 # Possible Open Items:
 # - Scaling
 
 
-def get_trainings_data(patch_size, samples_per_img, path=os.path.join(os.path.abspath('..'), 'data')):
+def get_trainings_data(patch_size, preprocession, samples_per_img, path=os.path.join(os.path.abspath('..'), 'data')):
     ground, images = load_images(path)
-    trainings_data = create_features(ground, images, patch_size, samples_per_img)
+    trainings_data = create_features(ground, images, patch_size, samples_per_img, preprocession)
     return trainings_data
 
 
-def create_features(ground_images, images, patch_size, samples_per_img):
+def create_features(ground_images, images, patch_size, samples_per_img, preprocession):
     # dim ground truth same as dim img?
-    train = np.zeros((len(images)*samples_per_img, ((patch_size**2)*3)+1))
+    train = np.zeros((len(images)*samples_per_img, preprocession.feature_length + 1))
     count = 0
     for i in range(len(images)):
         img = images[i]
@@ -26,8 +27,10 @@ def create_features(ground_images, images, patch_size, samples_per_img):
 
             if samples_per_img%2 == 0:
                 feature_patch, label = random_feature(ground, img, patch_size)
+                feature_patch = preprocession.preprocess(feature_patch)
             else:
                 feature_patch, label = random_feature(pos_ground, pos_img, patch_size)
+                feature_patch = preprocession.preprocess(feature_patch)
 
             train[count, 1:] = feature_patch
             train[count, 0] = label
@@ -70,7 +73,7 @@ def random_feature(ground, img, patch_size):
     label_patch = ground[rand_x:rand_x + patch_size, rand_y:rand_y + patch_size]
     cent = np.mean(label_patch)
     label = cent_to_label(cent)
-    return feature_patch[:, :, :3].flatten(), label
+    return feature_patch[:, :, :3], label
 
 
 def label_to_cent(label):
